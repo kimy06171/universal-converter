@@ -1,15 +1,51 @@
+# Dependencies
 node_modules/
+package-lock.json
+
+# Build outputs
 dist/
-dist-packager/
-dist-packager-new/
-uploads/
+dist-*/
+build/
 output/
-*.log
-.env
-.DS_Store
-Thumbs.db
-*.exe
-*.dll
+uploads/
 *.zip
 *.7z
-*.rar
+
+# Electron - 保留執行檔給使用者
+# *.exe
+# *.dll
+dist-packager/
+dist-packager-new/
+dist-final/
+Universal-Converter-Portable/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.temp
+~*
+_ul
+
+# Cache
+.cache/
+.npm/

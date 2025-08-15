@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萬用轉檔工具 Pro - 進階網頁版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-icon {
+            font-size: 1.5em;
+        }
+        
+        .upload-box {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .upload-box:hover {
+            background: #eef0ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-box.active {
+            background: #e0e5ff;
+            border-color: #764ba2;
+            border-width: 3px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .options-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .option-row {
+            margin-bottom: 15px;
+        }
+        
+        .option-row label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .option-row input,
+        .option-row select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        
+        .file-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .result-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .result-box h3 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+        
+        .download-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        .download-link:hover {
+            background: #218838;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .tool-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .tool-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .tool-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .info-message {
+            background: #cfe2ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-message {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close-modal {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 萬用轉檔工具 Pro</h1>
+        <p>強大的本地檔案轉換工具 - 完全離線使用</p>
+    </div>
+    
+    <div class="main-container">
+        <!-- 圖片轉換卡片 -->
+        <div class="card">
+            <h2><span class="card-icon">🖼️</span> 圖片轉換器</h2>
+            
+            <div class="upload-box" id="imageDropZone">
+                <div style="font-size: 3em; margin-bottom: 10px;">📸</div>
+                <h3>拖放圖片檔案到這裡</h3>
+                <p>或</p>
+                <button class="btn">選擇圖片檔案</button>
+                <input type="file" class="file-input" id="imageFiles" accept="image/*" multiple>
+                <p style="margin-top: 10px; color: #666;">支援：JPG, PNG, GIF, BMP, WebP, TIFF</p>
+            </div>
+            
+            <div class="file-list" id="imageFileList"></div>
+            
+            <div class="options-panel" style="display: none;" id="imageOptionsPanel">
+                <div class="option-row">
+                    <label>輸出格式</label>
+                    <select id="imageOutputFormat">
+                        <option value="jpeg">JPEG (.jpg)</option>
+                        <option value="png">PNG (.png)</option>
+                        <option value="webp">WebP (.webp)</option>
+                        <option value="gif">GIF (.gif)</option>
+                        <option value="bmp">BMP (.bmp)</option>
+                    </select>
+                </div>
+                
+                <div class="option-row">
+                    <label>圖片品質 (<span id="qualityDisplay">85</span>%)</label>
+                    <input type="range" id="imageQuality" min="1" max="100" value="85">
+                </div>
+                
+                <div class="option-row">
+                    <label>調整大小</label>
+                    <select id="resizeMode">
+                        <option value="none">保持原始大小</option>
+                        <option value="percentage">按百分比</option>
+                        <option value="width">固定寬度</option>
+                        <option value="height">固定高度</option>
+                        <option value="both">自訂尺寸</option>
+                    </select>
+                </div>
+                
+                <div class="option-row" id="resizeOptions" style="display: none;">
+                    <input type="number" id="resizeValue" placeholder="輸入數值">
+                    <small id="resizeHint">輸入百分比值（例如：50 表示 50%）</small>
+                </div>
+                
+                <div class="option-row">
+                    <label>
+                        <input type="checkbox" id="keepAspectRatio" checked> 保持長寬比
+                    </label>
+                </div>
+                
+                <button class="btn" id="convertImages">開始轉換</button>
+                <button class="btn btn-secondary" id="clearImages">清除所有</button>
+            </div>
+            
+            <div class="progress-container" id="imageProgress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="imageProgressBar" style="width: 0%;">0%</div>
+                </div>
+            </div>
+            
+            <div class="result-box" id="imageResults" style="display: none;">
+                <h3>✅ 轉換完成！</h3>
+                <div id="imageDownloadLinks"></div>
+            </div>
+        </div>
+        
+        <!-- 文檔工具卡片 -->
+        <div class="card">
+            <h2><span class="card-icon">📄</span> 文檔工具</h2>
+            
+            <div class="tools-grid">
+                <div class="tool-card" onclick="openTool('text')">
+                    <div class="tool-icon">📝</div>
+                    <div>文字編輯器</div>
+                </div>
+                
+                <div class="tool-card" onclick="openTool('base64')">
+                    <div class="tool-icon">🔐</div>
+                    <div>Base64 編碼</div>
+                </div>
+                
+                <div class="tool-card" onclick="openTool('json')">
+                    <div class="tool-icon">{ }</div>
+                    <div>JSON 格式化</div>
+                </div>
+                
+                <div class="tool-card" onclick="openTool('csv')">
+                    <div class="tool-icon">📊</div>
+                    <div>CSV 轉換</div>
+                </div>
+            </div>
+            
+            <div class="info-message">
+                <strong>💡 提示：</strong>點擊上方工具卡片使用不同功能
+            </div>
+        </div>
+        
+        <!-- 批次處理卡片 -->
+        <div class="card">
+            <h2><span class="card-icon">⚡</span> 批次處理</h2>
+            
+            <div class="upload-box" id="batchDropZone">
+                <div style="font-size: 3em; margin-bottom: 10px;">📁</div>
+                <h3>拖放多個檔案到這裡</h3>
+                <p>支援混合檔案類型批次處理</p>
+                <button class="btn">選擇多個檔案</button>
+                <input type="file" class="file-input" id="batchFiles" multiple>
+            </div>
+            
+            <div class="file-list" id="batchFileList"></div>
+            
+            <div class="options-panel" id="batchOptions" style="display: none;">
+                <h3>批次處理選項</h3>
+                <div class="option-row">
+                    <label>
+                        <input type="checkbox" id="batchCompress" checked> 壓縮檔案
+                    </label>
+                </div>
+                <div class="option-row">
+                    <label>
+                        <input type="checkbox" id="batchRename"> 批次重新命名
+                    </label>
+                </div>
+                <div class="option-row" id="renamePattern" style="display: none;">
+                    <input type="text" placeholder="檔名前綴" id="renamePrefix">
+                </div>
+                <button class="btn" id="processBatch">開始批次處理</button>
+            </div>
+        </div>
+        
+        <!-- 快速工具卡片 -->
+        <div class="card">
+            <h2><span class="card-icon">🛠️</span> 快速工具</h2>
+            
+            <div class="tools-grid">
+                <div class="tool-card" onclick="openColorPicker()">
+                    <div class="tool-icon">🎨</div>
+                    <div>顏色選擇器</div>
+                </div>
+                
+                <div class="tool-card" onclick="openQRGenerator()">
+                    <div class="tool-icon">📱</div>
+                    <div>QR Code 產生</div>
+                </div>
+                
+                <div class="tool-card" onclick="openHashGenerator()">
+                    <div class="tool-icon">🔒</div>
+                    <div>Hash 產生器</div>
+                </div>
+                
+                <div class="tool-card" onclick="openTimestamp()">
+                    <div class="tool-icon">⏰</div>
+                    <div>時間戳轉換</div>
+                </div>
+            </div>
+            
+            <div class="warning-message">
+                <strong>⚠️ 注意：</strong>所有處理都在您的瀏覽器本地完成，檔案不會上傳到任何伺服器
+            </div>
+        </div>
+    </div>
+    
+    <!-- 通用模態框 -->
+    <div class="modal" id="toolModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 圖片轉換功能
+        const imageDropZone = document.getElementById('imageDropZone');
+        const imageFilesInput = document.getElementById('imageFiles');
+        const imageFileList = document.getElementById('imageFileList');
+        const imageOptionsPanel = document.getElementById('imageOptionsPanel');
+        let imageFilesToConvert = [];
+        
+        // 設定拖放區域
+        imageDropZone.addEventListener('click', () => imageFilesInput.click());
+        
+        imageDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageDropZone.classList.add('active');
+        });
+        
+        imageDropZone.addEventListener('dragleave', () => {
+            imageDropZone.classList.remove('active');
+        });
+        
+        imageDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageDropZone.classList.remove('active');
+            handleImageFiles(e.dataTransfer.files);
+        });
+        
+        imageFilesInput.addEventListener('change', (e) => {
+            handleImageFiles(e.target.files);
+        });
+        
+        function handleImageFiles(files) {
+            imageFilesToConvert = Array.from(files).filter(file => file.type.startsWith('image/'));
+            displayImageFiles();
+            imageOptionsPanel.style.display = imageFilesToConvert.length > 0 ? 'block' : 'none';
+        }
+        
+        function displayImageFiles() {
+            imageFileList.innerHTML = '';
+            imageFilesToConvert.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${formatFileSize(file.size)}</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeImageFile(${index})">移除</button>
+                `;
+                imageFileList.appendChild(item);
+            });
+        }
+        
+        function removeImageFile(index) {
+            imageFilesToConvert.splice(index, 1);
+            displayImageFiles();
+            if (imageFilesToConvert.length === 0) {
+                imageOptionsPanel.style.display = 'none';
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        // 品質滑桿
+        const imageQuality = document.getElementById('imageQuality');
+        const qualityDisplay = document.getElementById('qualityDisplay');
+        imageQuality.addEventListener('input', () => {
+            qualityDisplay.textContent = imageQuality.value;
+        });
+        
+        // 調整大小選項
+        const resizeMode = document.getElementById('resizeMode');
+        const resizeOptions = document.getElementById('resizeOptions');
+        const resizeHint = document.getElementById('resizeHint');
+        
+        resizeMode.addEventListener('change', () => {
+            if (resizeMode.value === 'none') {
+                resizeOptions.style.display = 'none';
+            } else {
+                resizeOptions.style.display = 'block';
+                switch(resizeMode.value) {
+                    case 'percentage':
+                        resizeHint.textContent = '輸入百分比值（例如：50 表示 50%）';
+                        break;
+                    case 'width':
+                        resizeHint.textContent = '輸入寬度（像素）';
+                        break;
+                    case 'height':
+                        resizeHint.textContent = '輸入高度（像素）';
+                        break;
+                    case 'both':
+                        resizeHint.textContent = '輸入 寬度x高度（例如：800x600）';
+                        break;
+                }
+            }
+        });
+        
+        // 圖片轉換
+        document.getElementById('convertImages').addEventListener('click', async () => {
+            if (imageFilesToConvert.length === 0) {
+                alert('請選擇要轉換的圖片');
+                return;
+            }
+            
+            const format = document.getElementById('imageOutputFormat').value;
+            const quality = parseInt(imageQuality.value) / 100;
+            const progressContainer = document.getElementById('imageProgress');
+            const progressBar = document.getElementById('imageProgressBar');
+            const resultsContainer = document.getElementById('imageResults');
+            const downloadLinks = document.getElementById('imageDownloadLinks');
+            
+            progressContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            downloadLinks.innerHTML = '';
+            
+            const convertedFiles = [];
+            
+            for (let i = 0; i < imageFilesToConvert.length; i++) {
+                const file = imageFilesToConvert[i];
+                const progress = Math.round(((i + 1) / imageFilesToConvert.length) * 100);
+                progressBar.style.width = progress + '%';
+                progressBar.textContent = progress + '%';
+                
+                try {
+                    const convertedBlob = await convertImageFile(file, format, quality);
+                    const url = URL.createObjectURL(convertedBlob);
+                    const newFileName = file.name.replace(/\.[^/.]+$/, '') + '.' + format;
+                    
+                    convertedFiles.push({
+                        url: url,
+                        name: newFileName,
+                        size: convertedBlob.size
+                    });
+                } catch (error) {
+                    console.error('轉換錯誤:', error);
+                }
+            }
+            
+            // 顯示下載連結
+            convertedFiles.forEach(file => {
+                const link = document.createElement('a');
+                link.href = file.url;
+                link.download = file.name;
+                link.className = 'download-link';
+                link.textContent = `📥 ${file.name} (${formatFileSize(file.size)})`;
+                downloadLinks.appendChild(link);
+            });
+            
+            progressContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+        });
+        
+        async function convertImageFile(file, format, quality) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // 計算新尺寸
+                        let width = img.width;
+                        let height = img.height;
+                        const resizeMode = document.getElementById('resizeMode').value;
+                        const resizeValue = document.getElementById('resizeValue').value;
+                        
+                        if (resizeMode !== 'none' && resizeValue) {
+                            switch(resizeMode) {
+                                case 'percentage':
+                                    const scale = parseInt(resizeValue) / 100;
+                                    width = img.width * scale;
+                                    height = img.height * scale;
+                                    break;
+                                case 'width':
+                                    width = parseInt(resizeValue);
+                                    if (document.getElementById('keepAspectRatio').checked) {
+                                        height = (width / img.width) * img.height;
+                                    }
+                                    break;
+                                case 'height':
+                                    height = parseInt(resizeValue);
+                                    if (document.getElementById('keepAspectRatio').checked) {
+                                        width = (height / img.height) * img.width;
+                                    }
+                                    break;
+                                case 'both':
+                                    const dimensions = resizeValue.split('x');
+                                    if (dimensions.length === 2) {
+                                        width = parseInt(dimensions[0]);
+                                        height = parseInt(dimensions[1]);
+                                    }
+                                    break;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                resolve(blob);
+                            } else {
+                                reject(new Error('轉換失敗'));
+                            }
+                        }, `image/${format}`, quality);
+                    };
+                    img.onerror = () => reject(new Error('圖片載入失敗'));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error('檔案讀取失敗'));
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 清除所有圖片
+        document.getElementById('clearImages').addEventListener('click', () => {
+            imageFilesToConvert = [];
+            displayImageFiles();
+            imageOptionsPanel.style.display = 'none';
+            document.getElementById('imageResults').style.display = 'none';
+        });
+        
+        // 批次處理
+        const batchDropZone = document.getElementById('batchDropZone');
+        const batchFilesInput = document.getElementById('batchFiles');
+        const batchFileList = document.getElementById('batchFileList');
+        const batchOptions = document.getElementById('batchOptions');
+        let batchFiles = [];
+        
+        batchDropZone.addEventListener('click', () => batchFilesInput.click());
+        
+        batchDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            batchDropZone.classList.add('active');
+        });
+        
+        batchDropZone.addEventListener('dragleave', () => {
+            batchDropZone.classList.remove('active');
+        });
+        
+        batchDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            batchDropZone.classList.remove('active');
+            handleBatchFiles(e.dataTransfer.files);
+        });
+        
+        batchFilesInput.addEventListener('change', (e) => {
+            handleBatchFiles(e.target.files);
+        });
+        
+        function handleBatchFiles(files) {
+            batchFiles = Array.from(files);
+            displayBatchFiles();
+            batchOptions.style.display = batchFiles.length > 0 ? 'block' : 'none';
+        }
+        
+        function displayBatchFiles() {
+            batchFileList.innerHTML = '';
+            batchFiles.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${formatFileSize(file.size)}</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeBatchFile(${index})">移除</button>
+                `;
+                batchFileList.appendChild(item);
+            });
+        }
+        
+        function removeBatchFile(index) {
+            batchFiles.splice(index, 1);
+            displayBatchFiles();
+            if (batchFiles.length === 0) {
+                batchOptions.style.display = 'none';
+            }
+        }
+        
+        // 批次重新命名選項
+        document.getElementById('batchRename').addEventListener('change', (e) => {
+            document.getElementById('renamePattern').style.display = e.target.checked ? 'block' : 'none';
+        });
+        
+        // 處理批次檔案
+        document.getElementById('processBatch').addEventListener('click', () => {
+            if (batchFiles.length === 0) {
+                alert('請選擇要處理的檔案');
+                return;
+            }
+            
+            const compress = document.getElementById('batchCompress').checked;
+            const rename = document.getElementById('batchRename').checked;
+            const prefix = document.getElementById('renamePrefix').value;
+            
+            alert(`準備處理 ${batchFiles.length} 個檔案\n壓縮: ${compress ? '是' : '否'}\n重新命名: ${rename ? '是' : '否'}`);
+        });
+        
+        // 工具功能
+        function openTool(toolType) {
+            const modal = document.getElementById('toolModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            switch(toolType) {
+                case 'text':
+                    modalContent.innerHTML = `
+                        <h2>📝 文字編輯器</h2>
+                        <textarea style="width: 100%; height: 300px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="在這裡輸入或貼上文字..."></textarea>
+                        <div style="margin-top: 10px;">
+                            <button class="btn" onclick="countWords()">字數統計</button>
+                            <button class="btn" onclick="convertCase('upper')">轉大寫</button>
+                            <button class="btn" onclick="convertCase('lower')">轉小寫</button>
+                        </div>
+                        <div id="textResult" style="margin-top: 20px;"></div>
+                    `;
+                    break;
+                    
+                case 'base64':
+                    modalContent.innerHTML = `
+                        <h2>🔐 Base64 編碼/解碼</h2>
+                        <textarea id="base64Input" style="width: 100%; height: 150px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="輸入文字或 Base64 字串..."></textarea>
+                        <div style="margin-top: 10px;">
+                            <button class="btn" onclick="encodeBase64()">編碼</button>
+                            <button class="btn" onclick="decodeBase64()">解碼</button>
+                        </div>
+                        <textarea id="base64Output" style="width: 100%; height: 150px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 10px;" readonly placeholder="結果將顯示在這裡..."></textarea>
+                    `;
+                    break;
+                    
+                case 'json':
+                    modalContent.innerHTML = `
+                        <h2>{ } JSON 格式化</h2>
+                        <textarea id="jsonInput" style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: monospace;" placeholder="貼上 JSON 資料..."></textarea>
+                        <div style="margin-top: 10px;">
+                            <button class="btn" onclick="formatJSON()">格式化</button>
+                            <button class="btn" onclick="minifyJSON()">壓縮</button>
+                        </div>
+                        <pre id="jsonOutput" style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 10px; max-height: 300px; overflow: auto;"></pre>
+                    `;
+                    break;
+                    
+                case 'csv':
+                    modalContent.innerHTML = `
+                        <h2>📊 CSV 轉換器</h2>
+                        <p>選擇 CSV 檔案或貼上 CSV 資料</p>
+                        <input type="file" accept=".csv" onchange="handleCSV(this)">
+                        <textarea id="csvInput" style="width: 100%; height: 200px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 10px;" placeholder="或在這裡貼上 CSV 資料..."></textarea>
+                        <button class="btn" onclick="convertCSVToTable()">轉換為表格</button>
+                        <div id="csvOutput" style="margin-top: 20px; overflow: auto;"></div>
+                    `;
+                    break;
+            }
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('toolModal').style.display = 'none';
+        }
+        
+        // 快速工具
+        function openColorPicker() {
+            const modal = document.getElementById('toolModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalContent.innerHTML = `
+                <h2>🎨 顏色選擇器</h2>
+                <div style="display: flex; gap: 20px; align-items: center;">
+                    <input type="color" id="colorPicker" style="width: 100px; height: 100px; border: none; cursor: pointer;">
+                    <div>
+                        <div>HEX: <input type="text" id="hexValue" readonly style="width: 100px;"></div>
+                        <div>RGB: <input type="text" id="rgbValue" readonly style="width: 150px;"></div>
+                        <div>HSL: <input type="text" id="hslValue" readonly style="width: 150px;"></div>
+                    </div>
+                </div>
+                <button class="btn" onclick="copyColorValue()">複製 HEX 值</button>
+            `;
+            
+            const colorPicker = document.getElementById('colorPicker');
+            colorPicker.addEventListener('input', updateColorValues);
+            colorPicker.value = '#667eea';
+            updateColorValues();
+            
+            modal.style.display = 'flex';
+        }
+        
+        function updateColorValues() {
+            const color = document.getElementById('colorPicker').value;
+            document.getElementById('hexValue').value = color;
+            
+            // 轉換為 RGB
+            const r = parseInt(color.substr(1, 2), 16);
+            const g = parseInt(color.substr(3, 2), 16);
+            const b = parseInt(color.substr(5, 2), 16);
+            document.getElementById('rgbValue').value = `rgb(${r}, ${g}, ${b})`;
+            
+            // 轉換為 HSL
+            const rNorm = r / 255;
+            const gNorm = g / 255;
+            const bNorm = b / 255;
+            const max = Math.max(rNorm, gNorm, bNorm);
+            const min = Math.min(rNorm, gNorm, bNorm);
+            let h, s, l = (max + min) / 2;
+            
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case rNorm: h = ((gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0)) / 6; break;
+                    case gNorm: h = ((bNorm - rNorm) / d + 2) / 6; break;
+                    case bNorm: h = ((rNorm - gNorm) / d + 4) / 6; break;
+                }
+            }
+            
+            document.getElementById('hslValue').value = `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+        }
+        
+        function copyColorValue() {
+            const hexValue = document.getElementById('hexValue').value;
+            navigator.clipboard.writeText(hexValue);
+            alert('已複製: ' + hexValue);
+        }
+        
+        function openQRGenerator() {
+            const modal = document.getElementById('toolModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalContent.innerHTML = `
+                <h2>📱 QR Code 產生器</h2>
+                <input type="text" id="qrText" placeholder="輸入文字或網址..." style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                <button class="btn" onclick="generateQR()">產生 QR Code</button>
+                <div id="qrResult" style="margin-top: 20px; text-align: center;"></div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+        
+        function generateQR() {
+            const text = document.getElementById('qrText').value;
+            if (!text) {
+                alert('請輸入文字或網址');
+                return;
+            }
+            
+            // 使用 Google Charts API 產生 QR Code
+            const qrUrl = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodeURIComponent(text)}`;
+            document.getElementById('qrResult').innerHTML = `
+                <img src="${qrUrl}" alt="QR Code">
+                <br>
+                <a href="${qrUrl}" download="qrcode.png" class="btn" style="margin-top: 10px;">下載 QR Code</a>
+            `;
+        }
+        
+        function openHashGenerator() {
+            const modal = document.getElementById('toolModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalContent.innerHTML = `
+                <h2>🔒 Hash 產生器</h2>
+                <textarea id="hashInput" placeholder="輸入要加密的文字..." style="width: 100%; height: 100px; padding: 10px;"></textarea>
+                <button class="btn" onclick="generateHash()">產生 Hash</button>
+                <div id="hashResult" style="margin-top: 20px;">
+                    <div style="margin-bottom: 10px;">
+                        <strong>MD5:</strong> <span id="md5Result">-</span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>SHA-1:</strong> <span id="sha1Result">-</span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>SHA-256:</strong> <span id="sha256Result">-</span>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+        
+        async function generateHash() {
+            const text = document.getElementById('hashInput').value;
+            if (!text) {
+                alert('請輸入文字');
+                return;
+            }
+            
+            // SHA-256
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            document.getElementById('sha256Result').textContent = hashHex;
+            document.getElementById('md5Result').textContent = '需要外部函式庫';
+            document.getElementById('sha1Result').textContent = '需要外部函式庫';
+        }
+        
+        function openTimestamp() {
+            const modal = document.getElementById('toolModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            const now = new Date();
+            const timestamp = Math.floor(now.getTime() / 1000);
+            
+            modalContent.innerHTML = `
+                <h2>⏰ 時間戳轉換</h2>
+                <div style="margin-bottom: 20px;">
+                    <strong>當前時間：</strong> ${now.toLocaleString('zh-TW')}
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>Unix 時間戳：</strong> ${timestamp}
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label>時間戳轉日期：</label>
+                    <input type="number" id="timestampInput" placeholder="輸入時間戳" style="width: 200px; padding: 5px;">
+                    <button class="btn" onclick="convertTimestamp()">轉換</button>
+                    <div id="timestampResult" style="margin-top: 10px;"></div>
+                </div>
+                <div>
+                    <label>日期轉時間戳：</label>
+                    <input type="datetime-local" id="dateInput" style="width: 200px; padding: 5px;">
+                    <button class="btn" onclick="convertDate()">轉換</button>
+                    <div id="dateResult" style="margin-top: 10px;"></div>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+        
+        function convertTimestamp() {
+            const timestamp = document.getElementById('timestampInput').value;
+            if (!timestamp) {
+                alert('請輸入時間戳');
+                return;
+            }
+            
+            const date = new Date(parseInt(timestamp) * 1000);
+            document.getElementById('timestampResult').textContent = date.toLocaleString('zh-TW');
+        }
+        
+        function convertDate() {
+            const dateInput = document.getElementById('dateInput').value;
+            if (!dateInput) {
+                alert('請選擇日期時間');
+                return;
+            }
+            
+            const date = new Date(dateInput);
+            const timestamp = Math.floor(date.getTime() / 1000);
+            document.getElementById('dateResult').textContent = `時間戳: ${timestamp}`;
+        }
+        
+        // 文字工具函數
+        function countWords() {
+            const textarea = document.querySelector('#modalContent textarea');
+            const text = textarea.value;
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const chars = text.length;
+            const charsNoSpace = text.replace(/\s/g, '').length;
+            
+            document.getElementById('textResult').innerHTML = `
+                <strong>統計結果：</strong><br>
+                字數: ${words}<br>
+                字元數: ${chars}<br>
+                字元數(不含空格): ${charsNoSpace}
+            `;
+        }
+        
+        function convertCase(caseType) {
+            const textarea = document.querySelector('#modalContent textarea');
+            if (caseType === 'upper') {
+                textarea.value = textarea.value.toUpperCase();
+            } else {
+                textarea.value = textarea.value.toLowerCase();
+            }
+        }
+        
+        // Base64 函數
+        function encodeBase64() {
+            const input = document.getElementById('base64Input').value;
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(input)));
+                document.getElementById('base64Output').value = encoded;
+            } catch (e) {
+                alert('編碼失敗: ' + e.message);
+            }
+        }
+        
+        function decodeBase64() {
+            const input = document.getElementById('base64Input').value;
+            try {
+                const decoded = decodeURIComponent(escape(atob(input)));
+                document.getElementById('base64Output').value = decoded;
+            } catch (e) {
+                alert('解碼失敗: ' + e.message);
+            }
+        }
+        
+        // JSON 函數
+        function formatJSON() {
+            const input = document.getElementById('jsonInput').value;
+            try {
+                const parsed = JSON.parse(input);
+                document.getElementById('jsonOutput').textContent = JSON.stringify(parsed, null, 2);
+            } catch (e) {
+                document.getElementById('jsonOutput').textContent = '錯誤: ' + e.message;
+            }
+        }
+        
+        function minifyJSON() {
+            const input = document.getElementById('jsonInput').value;
+            try {
+                const parsed = JSON.parse(input);
+                document.getElementById('jsonOutput').textContent = JSON.stringify(parsed);
+            } catch (e) {
+                document.getElementById('jsonOutput').textContent = '錯誤: ' + e.message;
+            }
+        }
+        
+        // CSV 函數
+        function handleCSV(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('csvInput').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+        
+        function convertCSVToTable() {
+            const csvData = document.getElementById('csvInput').value;
+            if (!csvData) {
+                alert('請輸入 CSV 資料');
+                return;
+            }
+            
+            const rows = csvData.split('\n');
+            let html = '<table style="border-collapse: collapse; width: 100%;">';
+            
+            rows.forEach((row, index) => {
+                const cells = row.split(',');
+                html += '<tr>';
+                cells.forEach(cell => {
+                    const tag = index === 0 ? 'th' : 'td';
+                    html += `<${tag} style="border: 1px solid #ddd; padding: 8px;">${cell.trim()}</${tag}>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            document.getElementById('csvOutput').innerHTML = html;
+        }
+        
+        // 點擊模態框外部關閉
+        window.onclick = function(event) {
+            const modal = document.getElementById('toolModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

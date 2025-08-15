@@ -7,7 +7,7 @@ async function buildApp(platform = 'win32') {
     
     const baseOptions = {
         dir: '.',
-        out: 'dist-packager-new',
+        out: 'dist-final',
         name: 'Universal-Converter',
         electronVersion: '28.0.0',
         overwrite: true,

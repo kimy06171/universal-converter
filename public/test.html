@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>測試頁面</title>
+    <style>
+        body {
+            background-color: white;
+            color: black;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .status {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>萬用轉檔工具 - 測試頁面</h1>
+    
+    <div class="status" id="status">
+        正在測試連線...
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        // 測試 API
+        async function testAPI() {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                // 測試健康檢查
+                const healthResponse = await fetch('/api/health');
+                const healthData = await healthResponse.json();
+                
+                if (healthData.status === 'ok') {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ 伺服器連線正常！';
+                    
+                    // 測試格式 API
+                    const formatsResponse = await fetch('/api/formats');
+                    const formatsData = await formatsResponse.json();
+                    
+                    resultsDiv.innerHTML = `
+                        <h2>支援的格式：</h2>
+                        <ul style="text-align: left; display: inline-block;">
+                            <li>圖片：${formatsData.image.output.join(', ')}</li>
+                            <li>影片：${formatsData.video.output.join(', ')}</li>
+                            <li>音訊：${formatsData.audio.output.join(', ')}</li>
+                            <li>文檔：${formatsData.document.output.join(', ')}</li>
+                        </ul>
+                        <br><br>
+                        <a href="/index.html">前往主頁面</a>
+                    `;
+                } else {
+                    throw new Error('伺服器狀態異常');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ 錯誤：' + error.message;
+            }
+        }
+        
+        // 執行測試
+        testAPI();
+    </script>
+</body>
+</html>

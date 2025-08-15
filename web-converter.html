@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萬用轉檔工具 - 網頁版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #666;
+            font-size: 16px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        
+        .tab:hover {
+            color: #667eea;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.3s;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .options {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .option-group {
+            margin-bottom: 15px;
+        }
+        
+        .option-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        .option-group select,
+        .option-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .result {
+            background: #f0fff4;
+            border: 1px solid #b7e2c0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .result h3 {
+            color: #22a754;
+            margin-bottom: 10px;
+        }
+        
+        .download-btn {
+            background: #22a754;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .download-btn:hover {
+            background: #1e9348;
+        }
+        
+        .progress {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .progress.show {
+            display: block;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .file-list {
+            margin: 20px 0;
+        }
+        
+        .file-item {
+            background: #f8f9ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .info-box {
+            background: #e8f4ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box h4 {
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 萬用轉檔工具</h1>
+        <p class="subtitle">簡單、快速、免安裝的檔案轉換</p>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="image">🖼️ 圖片</button>
+            <button class="tab" data-tab="pdf">📄 PDF</button>
+            <button class="tab" data-tab="video">🎬 影片</button>
+            <button class="tab" data-tab="audio">🎵 音訊</button>
+        </div>
+        
+        <!-- 圖片轉換 -->
+        <div class="tab-content active" id="image">
+            <div class="upload-area" id="imageUploadArea">
+                <div class="upload-icon">🖼️</div>
+                <h3>拖放圖片到這裡</h3>
+                <p>或</p>
+                <button class="btn">選擇圖片</button>
+                <input type="file" class="file-input" id="imageInput" accept="image/*" multiple>
+                <p style="margin-top: 10px; color: #999;">支援 JPG, PNG, GIF, BMP, WebP</p>
+            </div>
+            
+            <div class="file-list" id="imageFileList"></div>
+            
+            <div class="options" id="imageOptions" style="display: none;">
+                <div class="option-group">
+                    <label>輸出格式：</label>
+                    <select id="imageFormat">
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
+                        <option value="webp">WebP</option>
+                        <option value="gif">GIF</option>
+                        <option value="bmp">BMP</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label>品質 (1-100)：</label>
+                    <input type="range" id="imageQuality" min="1" max="100" value="85">
+                    <span id="qualityValue">85</span>
+                </div>
+                <div class="option-group">
+                    <label>調整大小：</label>
+                    <select id="imageResize">
+                        <option value="original">原始大小</option>
+                        <option value="50">50%</option>
+                        <option value="75">75%</option>
+                        <option value="125">125%</option>
+                        <option value="150">150%</option>
+                        <option value="200">200%</option>
+                        <option value="custom">自訂</option>
+                    </select>
+                </div>
+                <div class="option-group" id="customSize" style="display: none;">
+                    <label>寬度 (px)：</label>
+                    <input type="number" id="customWidth" placeholder="留空保持比例">
+                    <label>高度 (px)：</label>
+                    <input type="number" id="customHeight" placeholder="留空保持比例">
+                </div>
+                <button class="btn" id="convertImage">開始轉換</button>
+            </div>
+            
+            <div class="progress" id="imageProgress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="imageProgressFill"></div>
+                </div>
+            </div>
+            
+            <div class="result" id="imageResult">
+                <h3>✅ 轉換完成！</h3>
+                <div id="imageDownloads"></div>
+            </div>
+        </div>
+        
+        <!-- PDF轉換 -->
+        <div class="tab-content" id="pdf">
+            <div class="upload-area" id="pdfUploadArea">
+                <div class="upload-icon">📄</div>
+                <h3>拖放檔案到這裡</h3>
+                <p>或</p>
+                <button class="btn">選擇檔案</button>
+                <input type="file" class="file-input" id="pdfInput" accept=".pdf,image/*" multiple>
+                <p style="margin-top: 10px; color: #999;">圖片轉PDF 或 PDF轉圖片</p>
+            </div>
+            
+            <div class="file-list" id="pdfFileList"></div>
+            
+            <div class="options" id="pdfOptions" style="display: none;">
+                <div class="option-group">
+                    <label>轉換方式：</label>
+                    <select id="pdfMode">
+                        <option value="imageToPdf">圖片轉PDF</option>
+                        <option value="pdfToImage">PDF轉圖片</option>
+                        <option value="mergePdf">合併PDF</option>
+                    </select>
+                </div>
+                <button class="btn" id="convertPdf">開始轉換</button>
+            </div>
+            
+            <div class="result" id="pdfResult">
+                <h3>✅ 轉換完成！</h3>
+                <div id="pdfDownloads"></div>
+            </div>
+        </div>
+        
+        <!-- 影片轉換 -->
+        <div class="tab-content" id="video">
+            <div class="info-box">
+                <h4>⚠️ 瀏覽器限制</h4>
+                <p>由於瀏覽器安全限制，影片轉換功能需要使用伺服器版本。</p>
+                <p>您可以：</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>使用線上轉換服務（如 CloudConvert、Convertio）</li>
+                    <li>下載專業軟體（如 HandBrake、FFmpeg）</li>
+                    <li>使用本工具的伺服器版本</li>
+                </ul>
+            </div>
+            
+            <div class="upload-area" id="videoUploadArea">
+                <div class="upload-icon">🎬</div>
+                <h3>影片壓縮（基本功能）</h3>
+                <p>可以調整影片品質以減少檔案大小</p>
+                <button class="btn">選擇影片</button>
+                <input type="file" class="file-input" id="videoInput" accept="video/*">
+            </div>
+        </div>
+        
+        <!-- 音訊轉換 -->
+        <div class="tab-content" id="audio">
+            <div class="info-box">
+                <h4>⚠️ 瀏覽器限制</h4>
+                <p>由於瀏覽器安全限制，音訊轉換功能有限。</p>
+                <p>建議使用：</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>線上服務（如 Online-Convert、Zamzar）</li>
+                    <li>專業軟體（如 Audacity、FFmpeg）</li>
+                </ul>
+            </div>
+            
+            <div class="upload-area" id="audioUploadArea">
+                <div class="upload-icon">🎵</div>
+                <h3>音訊處理（基本功能）</h3>
+                <p>可以調整音量和簡單處理</p>
+                <button class="btn">選擇音訊</button>
+                <input type="file" class="file-input" id="audioInput" accept="audio/*">
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 檔案處理相關變數
+        let selectedFiles = {
+            image: [],
+            pdf: [],
+            video: null,
+            audio: null
+        };
+        
+        // Tab 切換
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // 移除所有 active 類
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // 添加 active 類到當前 tab
+                tab.classList.add('active');
+                const tabId = tab.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // 圖片上傳處理
+        const imageUploadArea = document.getElementById('imageUploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const imageFileList = document.getElementById('imageFileList');
+        const imageOptions = document.getElementById('imageOptions');
+        
+        imageUploadArea.addEventListener('click', () => imageInput.click());
+        
+        imageUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageUploadArea.classList.add('dragover');
+        });
+        
+        imageUploadArea.addEventListener('dragleave', () => {
+            imageUploadArea.classList.remove('dragover');
+        });
+        
+        imageUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageUploadArea.classList.remove('dragover');
+            handleImageFiles(e.dataTransfer.files);
+        });
+        
+        imageInput.addEventListener('change', (e) => {
+            handleImageFiles(e.target.files);
+        });
+        
+        function handleImageFiles(files) {
+            selectedFiles.image = Array.from(files);
+            displayImageFiles();
+            imageOptions.style.display = 'block';
+        }
+        
+        function displayImageFiles() {
+            imageFileList.innerHTML = '';
+            selectedFiles.image.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                    <span>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    <button class="remove-btn" onclick="removeImageFile(${index})">移除</button>
+                `;
+                imageFileList.appendChild(item);
+            });
+        }
+        
+        function removeImageFile(index) {
+            selectedFiles.image.splice(index, 1);
+            displayImageFiles();
+            if (selectedFiles.image.length === 0) {
+                imageOptions.style.display = 'none';
+            }
+        }
+        
+        // 品質滑桿
+        const imageQuality = document.getElementById('imageQuality');
+        const qualityValue = document.getElementById('qualityValue');
+        imageQuality.addEventListener('input', () => {
+            qualityValue.textContent = imageQuality.value;
+        });
+        
+        // 調整大小選項
+        const imageResize = document.getElementById('imageResize');
+        const customSize = document.getElementById('customSize');
+        imageResize.addEventListener('change', () => {
+            customSize.style.display = imageResize.value === 'custom' ? 'block' : 'none';
+        });
+        
+        // 圖片轉換
+        document.getElementById('convertImage').addEventListener('click', async () => {
+            if (selectedFiles.image.length === 0) {
+                alert('請選擇圖片檔案');
+                return;
+            }
+            
+            const format = document.getElementById('imageFormat').value;
+            const quality = parseInt(document.getElementById('imageQuality').value) / 100;
+            const resize = document.getElementById('imageResize').value;
+            
+            const imageProgress = document.getElementById('imageProgress');
+            const imageProgressFill = document.getElementById('imageProgressFill');
+            const imageResult = document.getElementById('imageResult');
+            const imageDownloads = document.getElementById('imageDownloads');
+            
+            imageProgress.classList.add('show');
+            imageResult.classList.remove('show');
+            imageDownloads.innerHTML = '';
+            
+            for (let i = 0; i < selectedFiles.image.length; i++) {
+                const file = selectedFiles.image[i];
+                const progress = ((i + 1) / selectedFiles.image.length) * 100;
+                imageProgressFill.style.width = progress + '%';
+                
+                try {
+                    const convertedBlob = await convertImage(file, format, quality, resize);
+                    const url = URL.createObjectURL(convertedBlob);
+                    const fileName = file.name.replace(/\.[^/.]+$/, '') + '.' + format;
+                    
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = url;
+                    downloadLink.download = fileName;
+                    downloadLink.className = 'download-btn';
+                    downloadLink.textContent = `下載 ${fileName}`;
+                    downloadLink.style.marginRight = '10px';
+                    imageDownloads.appendChild(downloadLink);
+                } catch (error) {
+                    console.error('轉換失敗:', error);
+                    alert(`轉換 ${file.name} 失敗: ${error.message}`);
+                }
+            }
+            
+            imageProgress.classList.remove('show');
+            imageResult.classList.add('show');
+        });
+        
+        async function convertImage(file, format, quality, resizeOption) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // 處理調整大小
+                        if (resizeOption !== 'original') {
+                            if (resizeOption === 'custom') {
+                                const customWidth = document.getElementById('customWidth').value;
+                                const customHeight = document.getElementById('customHeight').value;
+                                if (customWidth) {
+                                    width = parseInt(customWidth);
+                                    if (!customHeight) {
+                                        height = (width / img.width) * img.height;
+                                    }
+                                }
+                                if (customHeight) {
+                                    height = parseInt(customHeight);
+                                    if (!customWidth) {
+                                        width = (height / img.height) * img.width;
+                                    }
+                                }
+                            } else {
+                                const scale = parseInt(resizeOption) / 100;
+                                width = img.width * scale;
+                                height = img.height * scale;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                resolve(blob);
+                            } else {
+                                reject(new Error('轉換失敗'));
+                            }
+                        }, `image/${format}`, quality);
+                    };
+                    img.onerror = () => reject(new Error('圖片載入失敗'));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error('檔案讀取失敗'));
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // PDF 處理
+        const pdfUploadArea = document.getElementById('pdfUploadArea');
+        const pdfInput = document.getElementById('pdfInput');
+        const pdfFileList = document.getElementById('pdfFileList');
+        const pdfOptions = document.getElementById('pdfOptions');
+        
+        pdfUploadArea.addEventListener('click', () => pdfInput.click());
+        
+        pdfUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            pdfUploadArea.classList.add('dragover');
+        });
+        
+        pdfUploadArea.addEventListener('dragleave', () => {
+            pdfUploadArea.classList.remove('dragover');
+        });
+        
+        pdfUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            pdfUploadArea.classList.remove('dragover');
+            handlePdfFiles(e.dataTransfer.files);
+        });
+        
+        pdfInput.addEventListener('change', (e) => {
+            handlePdfFiles(e.target.files);
+        });
+        
+        function handlePdfFiles(files) {
+            selectedFiles.pdf = Array.from(files);
+            displayPdfFiles();
+            pdfOptions.style.display = 'block';
+        }
+        
+        function displayPdfFiles() {
+            pdfFileList.innerHTML = '';
+            selectedFiles.pdf.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                    <span>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    <button class="remove-btn" onclick="removePdfFile(${index})">移除</button>
+                `;
+                pdfFileList.appendChild(item);
+            });
+        }
+        
+        function removePdfFile(index) {
+            selectedFiles.pdf.splice(index, 1);
+            displayPdfFiles();
+            if (selectedFiles.pdf.length === 0) {
+                pdfOptions.style.display = 'none';
+            }
+        }
+        
+        // PDF 轉換按鈕
+        document.getElementById('convertPdf').addEventListener('click', () => {
+            alert('PDF轉換功能需要使用外部函式庫。\n\n建議使用：\n1. SmallPDF (smallpdf.com)\n2. ILovePDF (ilovepdf.com)\n3. Adobe Acrobat Online');
+        });
+        
+        // 影片和音訊處理提示
+        const videoUploadArea = document.getElementById('videoUploadArea');
+        const videoInput = document.getElementById('videoInput');
+        
+        videoUploadArea.addEventListener('click', () => {
+            alert('影片轉換需要伺服器支援。\n\n推薦使用：\n1. HandBrake (免費開源)\n2. CloudConvert (線上服務)\n3. FFmpeg (命令列工具)');
+        });
+        
+        const audioUploadArea = document.getElementById('audioUploadArea');
+        const audioInput = document.getElementById('audioInput');
+        
+        audioUploadArea.addEventListener('click', () => {
+            alert('音訊轉換需要伺服器支援。\n\n推薦使用：\n1. Audacity (免費開源)\n2. Online-Convert (線上服務)\n3. FFmpeg (命令列工具)');
+        });
+    </script>
+</body>
+</html>

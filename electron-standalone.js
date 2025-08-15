@@ -3,9 +3,110 @@ const path = require('path');
 const http = require('http');
 const fs = require('fs');
 const url = require('url');
+const formidable = require('formidable');
+const sharp = require('sharp');
+const ffmpeg = require('fluent-ffmpeg');
+const { PDFDocument } = require('pdf-lib');
 
 let mainWindow;
 const PORT = 3456;
+
+// 確保必要的目錄存在
+const uploadsDir = path.join(__dirname, 'uploads');
+const outputDir = path.join(__dirname, 'output');
+
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+}
+
+// 處理檔案轉換
+async function handleFileConversion(req, res) {
+    const form = new formidable.IncomingForm();
+    form.uploadDir = uploadsDir;
+    form.keepExtensions = true;
+    form.maxFileSize = 500 * 1024 * 1024; // 500MB
+
+    form.parse(req, async (err, fields, files) => {
+        if (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: '檔案上傳失敗' }));
+            return;
+        }
+
+        try {
+            const file = files.file;
+            const targetFormat = fields.format;
+            
+            if (!file || !targetFormat) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: '缺少必要參數' }));
+                return;
+            }
+
+            const inputPath = file.filepath;
+            const outputFilename = `converted_${Date.now()}.${targetFormat}`;
+            const outputPath = path.join(outputDir, outputFilename);
+
+            // 根據檔案類型進行轉換
+            const fileExt = path.extname(file.originalFilename).toLowerCase().slice(1);
+            
+            // 圖片轉換
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'].includes(fileExt)) {
+                await sharp(inputPath)
+                    .toFormat(targetFormat)
+                    .toFile(outputPath);
+            }
+            // 影片/音訊轉換
+            else if (['mp4', 'avi', 'mov', 'mkv', 'webm', 'mp3', 'wav', 'flac'].includes(fileExt)) {
+                await new Promise((resolve, reject) => {
+                    ffmpeg(inputPath)
+                        .output(outputPath)
+                        .on('end', resolve)
+                        .on('error', reject)
+                        .run();
+                });
+            }
+            // 文檔轉換
+            else if (fileExt === 'pdf' && targetFormat === 'txt') {
+                // 簡單的 PDF 文字提取
+                const pdfBytes = fs.readFileSync(inputPath);
+                const pdfDoc = await PDFDocument.load(pdfBytes);
+                const pages = pdfDoc.getPages();
+                let text = '';
+                // 注意：這是簡化版，實際 PDF 文字提取更複雜
+                text = `PDF 檔案，共 ${pages.length} 頁`;
+                fs.writeFileSync(outputPath, text);
+            }
+            else {
+                // 對於不支援的格式，直接複製
+                fs.copyFileSync(inputPath, outputPath);
+            }
+
+            // 讀取轉換後的檔案
+            const convertedData = fs.readFileSync(outputPath);
+            const base64Data = convertedData.toString('base64');
+
+            // 清理暫存檔案
+            fs.unlinkSync(inputPath);
+            fs.unlinkSync(outputPath);
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: true,
+                filename: outputFilename,
+                data: base64Data
+            }));
+
+        } catch (error) {
+            console.error('轉換錯誤:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: '檔案轉換失敗' }));
+        }
+    });
+}
 
 // 建立簡單的 HTTP 伺服器
 function createServer() {
@@ -45,15 +146,29 @@ function createServer() {
             return;
         }
         
+        // 檔案上傳和轉換 API
+        if (pathname === '/api/convert' && req.method === 'POST') {
+            handleFileConversion(req, res);
+            return;
+        }
+        
         // 靜態檔案服務
         // 如果是根路徑，使用 index.html
-        if (pathname === '/') {
-            pathname = '/index.html';
+        let targetPath = pathname;
+        if (targetPath === '/') {
+            targetPath = '/index.html';
         }
         
         // 移除開頭的斜線並建立檔案路徑
-        const relativePath = pathname.slice(1);
-        let filePath = path.join(__dirname, 'public', relativePath);
+        const relativePath = targetPath.slice(1);
+        // 檢查是否在 public 資料夾
+        let filePath;
+        if (relativePath.startsWith('public/')) {
+            filePath = path.join(__dirname, relativePath);
+        } else {
+            // 預設從 public 資料夾讀取
+            filePath = path.join(__dirname, 'public', relativePath);
+        }
         
         // 檢查檔案是否存在
         console.log('Trying to serve:', filePath);
