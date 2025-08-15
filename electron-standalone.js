@@ -46,13 +46,23 @@ function createServer() {
         }
         
         // 靜態檔案服務
-        let filePath = path.join(__dirname, 'public', pathname === '/' ? 'index.html' : pathname);
+        // 如果是根路徑，使用 index.html
+        if (pathname === '/') {
+            pathname = '/index.html';
+        }
+        
+        // 移除開頭的斜線並建立檔案路徑
+        const relativePath = pathname.slice(1);
+        let filePath = path.join(__dirname, 'public', relativePath);
         
         // 檢查檔案是否存在
+        console.log('Trying to serve:', filePath);
+        
         fs.access(filePath, fs.constants.F_OK, (err) => {
             if (err) {
+                console.error('File not found:', filePath);
                 res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
-                res.end('<h1>404 - 找不到頁面</h1>');
+                res.end(`<h1>404 - 找不到頁面</h1><p>路徑：${pathname}</p><p>檔案：${filePath}</p>`);
                 return;
             }
             
