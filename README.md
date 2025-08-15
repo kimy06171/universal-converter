@@ -8,44 +8,55 @@
 ## ✨ 特色功能
 
 - 🖼️ **圖片轉換** - 支援 JPG, PNG, GIF, BMP, WebP 等格式互轉
+- 📄 **PDF 專業處理** - 完整的 PDF 轉換、合併、分割、壓縮功能
 - 🎬 **影片處理** - MP4, AVI, MOV, MKV 等格式轉換
 - 🎵 **音訊轉換** - MP3, WAV, FLAC, AAC 等格式支援
-- 📄 **文檔處理** - PDF, DOCX, TXT, CSV 格式轉換
-- 🌐 **網頁版** - 無需安裝，直接在瀏覽器使用
+- 🌐 **三種網頁版本** - 簡單版、進階版、PDF 專業版
 - 💻 **跨平台** - 支援 Windows、macOS、Linux
 - 🔒 **隱私安全** - 所有處理都在本地完成，不上傳檔案
+- 🆓 **完全免費** - 無限制、無浮水印、無需訂閱
 
 ## 🚀 快速開始
 
 ### 網頁版（推薦）
 
-最簡單的使用方式，無需安裝任何軟體：
+最簡單的使用方式，無需安裝任何軟體。提供三種版本：
 
+#### 版本選擇
+- **簡單版** (`web-converter.html`) - 基本圖片轉換
+- **進階版** (`web-converter-advanced.html`) - 多功能工具箱
+- **PDF 專業版** (`web-converter-pdf.html`) - 完整 PDF 處理
+
+#### 使用方式
 1. 下載專案
-2. 開啟 `web-converter.html`（簡單版）或 `web-converter-advanced.html`（進階版）
+2. 選擇適合的版本開啟
 3. 直接在瀏覽器中使用
 
 ### 桌面版
 
 #### Windows
 ```bash
-# 快速啟動
+# 開啟網頁版選擇器
+開啟網頁版.bat
+
+# 快速啟動桌面版
 RUN-GUI.bat
 
 # 建立可攜式版本
 QUICK-PORTABLE-BUILD.bat
 ```
 
-#### macOS
+#### macOS / Linux
 ```bash
-# 安裝依賴
-npm install
+# 給予執行權限
+chmod +x run-mac.sh
+chmod +x open-converter.sh
 
-# 啟動應用程式
-npm run electron
+# 啟動（Mac 專用）
+./run-mac.sh
 
-# 建立 Mac 應用程式
-npm run build-mac
+# 跨平台啟動器
+./open-converter.sh
 ```
 
 ## 📦 安裝
@@ -81,11 +92,19 @@ npm run electron  # 啟動桌面版本
 - **輸入**: JPG, PNG, GIF, BMP, WebP, TIFF, SVG
 - **輸出**: JPG, PNG, WebP, GIF, BMP
 
-### 影片
+### PDF（網頁版專業功能）
+- **圖片轉 PDF**: 多張圖片合併為單一 PDF
+- **PDF 轉圖片**: 每頁轉換為獨立圖片
+- **合併 PDF**: 多個 PDF 合併為一個
+- **分割 PDF**: 按頁數或範圍分割
+- **壓縮 PDF**: 減少檔案大小
+- **文字轉 PDF**: 純文字轉換為 PDF
+
+### 影片（桌面版）
 - **輸入**: MP4, AVI, MOV, MKV, WebM, FLV
 - **輸出**: MP4, AVI, MOV, MKV, WebM
 
-### 音訊
+### 音訊（桌面版）
 - **輸入**: MP3, WAV, FLAC, AAC, OGG, M4A
 - **輸出**: MP3, WAV, FLAC, AAC, OGG
 
@@ -102,6 +121,37 @@ npm run electron  # 啟動桌面版本
 | Linux | ✅ | ⚠️ | 測試中 |
 | iOS/Android | ✅ | ❌ | 僅網頁版 |
 
+## 🎯 網頁版本比較
+
+| 功能 | 簡單版 | 進階版 | PDF 專業版 |
+|------|--------|--------|------------|
+| 圖片轉換 | ✅ | ✅ | ❌ |
+| 圖片調整大小 | ✅ | ✅ | ❌ |
+| 批次處理 | ✅ | ✅ | ✅ |
+| PDF 處理 | ❌ | 基本 | ✅ 完整 |
+| 文字工具 | ❌ | ✅ | ❌ |
+| Base64 編碼 | ❌ | ✅ | ❌ |
+| QR Code | ❌ | ✅ | ❌ |
+| 檔案大小 | 最小 | 中等 | 較大 |
+
+## 🆚 與其他服務比較
+
+| 特點 | 本工具 | SmallPDF | ILovePDF | Adobe Online |
+|------|--------|----------|----------|--------------|
+| 價格 | 免費 | 付費 | 付費 | 訂閱制 |
+| 檔案限制 | 無 | 有 | 有 | 有 |
+| 浮水印 | 無 | 付費版無 | 付費版無 | 無 |
+| 隱私 | 本地處理 | 雲端 | 雲端 | 雲端 |
+| 網路需求 | 不需要 | 需要 | 需要 | 需要 |
+
 ## 📄 授權
 
 MIT License
+
+## 🙏 致謝
+
+- [PDF.js](https://mozilla.github.io/pdf.js/) - PDF 讀取和顯示
+- [jsPDF](https://github.com/parallax/jsPDF) - PDF 產生
+- [FFmpeg](https://ffmpeg.org/) - 影音處理
+- [Sharp](https://sharp.pixelplumbing.com/) - 圖片處理
+- [Electron](https://www.electronjs.org/) - 桌面應用程式框架

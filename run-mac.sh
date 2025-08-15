@@ -48,22 +48,32 @@ fi
 
 echo ""
 echo "選擇啟動方式："
-echo "1) 網頁版（推薦）"
-echo "2) Electron 桌面版"
-echo "3) 伺服器版本"
+echo "1) 網頁版 - 簡單版"
+echo "2) 網頁版 - 進階版"
+echo "3) 網頁版 - PDF 專業版"
+echo "4) Electron 桌面版"
+echo "5) 伺服器版本"
 echo ""
-read -p "請選擇 (1-3): " choice
+read -p "請選擇 (1-5): " choice
 
 case $choice in
     1)
-        echo "開啟網頁版..."
+        echo "開啟網頁版（簡單版）..."
         open web-converter.html
         ;;
     2)
+        echo "開啟網頁版（進階版）..."
+        open web-converter-advanced.html
+        ;;
+    3)
+        echo "開啟網頁版（PDF 專業版）..."
+        open web-converter-pdf.html
+        ;;
+    4)
         echo "啟動 Electron 應用程式..."
         npm run electron
         ;;
-    3)
+    5)
         echo "啟動伺服器..."
         echo "伺服器將運行在 http://localhost:3000"
         npm start

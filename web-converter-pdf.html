@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萬用轉檔工具 - PDF 專業版</title>
+    <!-- PDF.js 用於讀取 PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- jsPDF 用於產生 PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas 用於網頁轉 PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab:hover {
+            background: #e8ebf0;
+            transform: translateY(-2px);
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .tab-icon {
+            font-size: 1.2em;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-list {
+            margin: 20px 0;
+        }
+        
+        .file-item {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .file-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .file-icon {
+            font-size: 24px;
+        }
+        
+        .file-details {
+            text-align: left;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .options-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .option-group {
+            margin-bottom: 20px;
+        }
+        
+        .option-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .option-group select,
+        .option-group input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .option-group select:focus,
+        .option-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .progress-container {
+            margin: 30px 0;
+            display: none;
+        }
+        
+        .progress-container.show {
+            display: block;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .result-container {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .result-container.show {
+            display: block;
+        }
+        
+        .result-container h3 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+        
+        .download-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .download-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .download-link:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .preview-container {
+            margin: 20px 0;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            background: white;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .page-preview {
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        
+        .page-preview canvas {
+            width: 100%;
+            height: auto;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .feature-desc {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .info-box {
+            background: #e8f4ff;
+            border-left: 4px solid #0066cc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .text-editor {
+            width: 100%;
+            min-height: 400px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 PDF 專業轉換工具</h1>
+        <p class="subtitle">完整的 PDF 處理功能 - 轉換、合併、分割、編輯</p>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="image-to-pdf">
+                <span class="tab-icon">🖼️</span>
+                圖片轉 PDF
+            </button>
+            <button class="tab" data-tab="pdf-to-image">
+                <span class="tab-icon">📸</span>
+                PDF 轉圖片
+            </button>
+            <button class="tab" data-tab="merge-pdf">
+                <span class="tab-icon">📎</span>
+                合併 PDF
+            </button>
+            <button class="tab" data-tab="split-pdf">
+                <span class="tab-icon">✂️</span>
+                分割 PDF
+            </button>
+            <button class="tab" data-tab="compress-pdf">
+                <span class="tab-icon">🗜️</span>
+                壓縮 PDF
+            </button>
+            <button class="tab" data-tab="text-to-pdf">
+                <span class="tab-icon">📝</span>
+                文字轉 PDF
+            </button>
+        </div>
+        
+        <!-- 圖片轉 PDF -->
+        <div class="tab-content active" id="image-to-pdf">
+            <div class="upload-area" id="imageToPdfUpload">
+                <div class="upload-icon">🖼️</div>
+                <h3>拖放圖片檔案到這裡</h3>
+                <p>支援 JPG, PNG, GIF, BMP, WebP</p>
+                <button class="btn">選擇圖片</button>
+                <input type="file" class="file-input" id="imageToPdfInput" accept="image/*" multiple>
+            </div>
+            
+            <div class="file-list" id="imageToPdfList"></div>
+            
+            <div class="options-panel" id="imageToPdfOptions" style="display: none;">
+                <div class="option-group">
+                    <label>頁面大小</label>
+                    <select id="pageSize">
+                        <option value="a4">A4</option>
+                        <option value="letter">Letter</option>
+                        <option value="a3">A3</option>
+                        <option value="legal">Legal</option>
+                        <option value="auto">自動偵測</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label>頁面方向</label>
+                    <select id="pageOrientation">
+                        <option value="portrait">直向</option>
+                        <option value="landscape">橫向</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label>圖片品質 (1-100)</label>
+                    <input type="range" id="imageQuality" min="1" max="100" value="85">
+                    <span id="qualityValue">85</span>
+                </div>
+                <button class="btn" id="convertImageToPdf">轉換為 PDF</button>
+                <button class="btn btn-secondary" id="clearImages">清除所有</button>
+            </div>
+            
+            <div class="progress-container" id="imageToPdfProgress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;">0%</div>
+                </div>
+            </div>
+            
+            <div class="result-container" id="imageToPdfResult">
+                <h3>✅ 轉換完成！</h3>
+                <div class="download-links" id="imageToPdfDownload"></div>
+            </div>
+        </div>
+        
+        <!-- PDF 轉圖片 -->
+        <div class="tab-content" id="pdf-to-image">
+            <div class="upload-area" id="pdfToImageUpload">
+                <div class="upload-icon">📄</div>
+                <h3>拖放 PDF 檔案到這裡</h3>
+                <p>將 PDF 每一頁轉換為圖片</p>
+                <button class="btn">選擇 PDF</button>
+                <input type="file" class="file-input" id="pdfToImageInput" accept="application/pdf">
+            </div>
+            
+            <div class="file-list" id="pdfToImageList"></div>
+            
+            <div class="options-panel" id="pdfToImageOptions" style="display: none;">
+                <div class="option-group">
+                    <label>輸出格式</label>
+                    <select id="outputImageFormat">
+                        <option value="png">PNG</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="webp">WebP</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label>解析度 (DPI)</label>
+                    <select id="outputDpi">
+                        <option value="72">72 (網頁)</option>
+                        <option value="150">150 (標準)</option>
+                        <option value="300">300 (高品質)</option>
+                        <option value="600">600 (印刷)</option>
+                    </select>
+                </div>
+                <button class="btn" id="convertPdfToImage">轉換為圖片</button>
+            </div>
+            
+            <div class="preview-container" id="pdfPreview" style="display: none;">
+                <h4>PDF 預覽</h4>
+                <div id="pdfPages"></div>
+            </div>
+            
+            <div class="result-container" id="pdfToImageResult">
+                <h3>✅ 轉換完成！</h3>
+                <div class="download-links" id="pdfToImageDownload"></div>
+            </div>
+        </div>
+        
+        <!-- 合併 PDF -->
+        <div class="tab-content" id="merge-pdf">
+            <div class="upload-area" id="mergePdfUpload">
+                <div class="upload-icon">📎</div>
+                <h3>拖放多個 PDF 檔案到這裡</h3>
+                <p>將多個 PDF 合併為一個檔案</p>
+                <button class="btn">選擇 PDF 檔案</button>
+                <input type="file" class="file-input" id="mergePdfInput" accept="application/pdf" multiple>
+            </div>
+            
+            <div class="file-list" id="mergePdfList"></div>
+            
+            <div class="options-panel" id="mergePdfOptions" style="display: none;">
+                <div class="info-box">
+                    <strong>提示：</strong>您可以拖動檔案來調整合併順序
+                </div>
+                <button class="btn" id="mergePdfFiles">合併 PDF</button>
+                <button class="btn btn-secondary" id="clearMergeFiles">清除所有</button>
+            </div>
+            
+            <div class="progress-container" id="mergePdfProgress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;">0%</div>
+                </div>
+            </div>
+            
+            <div class="result-container" id="mergePdfResult">
+                <h3>✅ 合併完成！</h3>
+                <div class="download-links" id="mergePdfDownload"></div>
+            </div>
+        </div>
+        
+        <!-- 分割 PDF -->
+        <div class="tab-content" id="split-pdf">
+            <div class="upload-area" id="splitPdfUpload">
+                <div class="upload-icon">✂️</div>
+                <h3>拖放 PDF 檔案到這裡</h3>
+                <p>將 PDF 分割為多個檔案</p>
+                <button class="btn">選擇 PDF</button>
+                <input type="file" class="file-input" id="splitPdfInput" accept="application/pdf">
+            </div>
+            
+            <div class="file-list" id="splitPdfList"></div>
+            
+            <div class="options-panel" id="splitPdfOptions" style="display: none;">
+                <div class="option-group">
+                    <label>分割方式</label>
+                    <select id="splitMethod">
+                        <option value="pages">每頁分割</option>
+                        <option value="range">頁碼範圍</option>
+                        <option value="size">按檔案大小</option>
+                    </select>
+                </div>
+                <div class="option-group" id="pageRangeGroup" style="display: none;">
+                    <label>頁碼範圍（例如：1-3,5,7-9）</label>
+                    <input type="text" id="pageRange" placeholder="1-3,5,7-9">
+                </div>
+                <button class="btn" id="splitPdfFile">分割 PDF</button>
+            </div>
+            
+            <div class="result-container" id="splitPdfResult">
+                <h3>✅ 分割完成！</h3>
+                <div class="download-links" id="splitPdfDownload"></div>
+            </div>
+        </div>
+        
+        <!-- 壓縮 PDF -->
+        <div class="tab-content" id="compress-pdf">
+            <div class="upload-area" id="compressPdfUpload">
+                <div class="upload-icon">🗜️</div>
+                <h3>拖放 PDF 檔案到這裡</h3>
+                <p>減少 PDF 檔案大小</p>
+                <button class="btn">選擇 PDF</button>
+                <input type="file" class="file-input" id="compressPdfInput" accept="application/pdf">
+            </div>
+            
+            <div class="file-list" id="compressPdfList"></div>
+            
+            <div class="options-panel" id="compressPdfOptions" style="display: none;">
+                <div class="option-group">
+                    <label>壓縮等級</label>
+                    <select id="compressionLevel">
+                        <option value="low">低壓縮（品質最佳）</option>
+                        <option value="medium">中等壓縮（平衡）</option>
+                        <option value="high">高壓縮（檔案最小）</option>
+                    </select>
+                </div>
+                <button class="btn" id="compressPdfFile">壓縮 PDF</button>
+            </div>
+            
+            <div class="result-container" id="compressPdfResult">
+                <h3>✅ 壓縮完成！</h3>
+                <div class="download-links" id="compressPdfDownload"></div>
+            </div>
+        </div>
+        
+        <!-- 文字轉 PDF -->
+        <div class="tab-content" id="text-to-pdf">
+            <div class="options-panel">
+                <div class="option-group">
+                    <label>輸入文字內容</label>
+                    <textarea class="text-editor" id="textContent" placeholder="在這裡輸入或貼上文字..."></textarea>
+                </div>
+                <div class="option-group">
+                    <label>字體大小</label>
+                    <select id="fontSize">
+                        <option value="10">10pt</option>
+                        <option value="11">11pt</option>
+                        <option value="12" selected>12pt</option>
+                        <option value="14">14pt</option>
+                        <option value="16">16pt</option>
+                        <option value="18">18pt</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label>字體</label>
+                    <select id="fontFamily">
+                        <option value="helvetica">Helvetica</option>
+                        <option value="times">Times New Roman</option>
+                        <option value="courier">Courier</option>
+                    </select>
+                </div>
+                <button class="btn" id="convertTextToPdf">轉換為 PDF</button>
+            </div>
+            
+            <div class="result-container" id="textToPdfResult">
+                <h3>✅ 轉換完成！</h3>
+                <div class="download-links" id="textToPdfDownload"></div>
+            </div>
+        </div>
+        
+        <!-- 功能介紹 -->
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-title">100% 離線處理</div>
+                <div class="feature-desc">所有處理都在您的瀏覽器完成，檔案不會上傳到任何伺服器</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">快速轉換</div>
+                <div class="feature-desc">使用最新技術，提供快速的檔案處理速度</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">高品質輸出</div>
+                <div class="feature-desc">保持原始檔案品質，支援高解析度輸出</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">跨平台支援</div>
+                <div class="feature-desc">支援所有現代瀏覽器，無需安裝任何軟體</div>
+            </div>
+        </div>
+        
+        <div class="warning-box">
+            <strong>⚠️ 注意事項：</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>建議單個檔案不超過 50MB</li>
+                <li>某些功能需要現代瀏覽器支援</li>
+                <li>處理大檔案時可能需要較長時間</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // 設定 PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        // Tab 切換
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                const tabId = tab.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // 圖片轉 PDF 功能
+        const imageToPdfUpload = document.getElementById('imageToPdfUpload');
+        const imageToPdfInput = document.getElementById('imageToPdfInput');
+        const imageToPdfList = document.getElementById('imageToPdfList');
+        const imageToPdfOptions = document.getElementById('imageToPdfOptions');
+        let imagesToConvert = [];
+        
+        imageToPdfUpload.addEventListener('click', () => imageToPdfInput.click());
+        
+        imageToPdfUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageToPdfUpload.classList.add('dragover');
+        });
+        
+        imageToPdfUpload.addEventListener('dragleave', () => {
+            imageToPdfUpload.classList.remove('dragover');
+        });
+        
+        imageToPdfUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageToPdfUpload.classList.remove('dragover');
+            handleImageFiles(e.dataTransfer.files);
+        });
+        
+        imageToPdfInput.addEventListener('change', (e) => {
+            handleImageFiles(e.target.files);
+        });
+        
+        function handleImageFiles(files) {
+            imagesToConvert = Array.from(files).filter(file => file.type.startsWith('image/'));
+            displayImageFiles();
+            imageToPdfOptions.style.display = imagesToConvert.length > 0 ? 'block' : 'none';
+        }
+        
+        function displayImageFiles() {
+            imageToPdfList.innerHTML = '';
+            imagesToConvert.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">🖼️</div>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeImageFile(${index})">移除</button>
+                `;
+                imageToPdfList.appendChild(item);
+            });
+        }
+        
+        function removeImageFile(index) {
+            imagesToConvert.splice(index, 1);
+            displayImageFiles();
+            if (imagesToConvert.length === 0) {
+                imageToPdfOptions.style.display = 'none';
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        // 品質滑桿
+        const imageQuality = document.getElementById('imageQuality');
+        const qualityValue = document.getElementById('qualityValue');
+        imageQuality.addEventListener('input', () => {
+            qualityValue.textContent = imageQuality.value;
+        });
+        
+        // 圖片轉 PDF 轉換
+        document.getElementById('convertImageToPdf').addEventListener('click', async () => {
+            if (imagesToConvert.length === 0) {
+                alert('請選擇圖片檔案');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const pageSize = document.getElementById('pageSize').value;
+            const orientation = document.getElementById('pageOrientation').value;
+            const quality = parseInt(imageQuality.value) / 100;
+            
+            const progressContainer = document.getElementById('imageToPdfProgress');
+            const progressFill = progressContainer.querySelector('.progress-fill');
+            const resultContainer = document.getElementById('imageToPdfResult');
+            const downloadContainer = document.getElementById('imageToPdfDownload');
+            
+            progressContainer.classList.add('show');
+            resultContainer.classList.remove('show');
+            
+            try {
+                // 建立 PDF
+                const pdf = new jsPDF({
+                    orientation: orientation,
+                    unit: 'mm',
+                    format: pageSize === 'auto' ? 'a4' : pageSize
+                });
+                
+                let firstPage = true;
+                
+                for (let i = 0; i < imagesToConvert.length; i++) {
+                    const file = imagesToConvert[i];
+                    const progress = Math.round(((i + 1) / imagesToConvert.length) * 100);
+                    progressFill.style.width = progress + '%';
+                    progressFill.textContent = progress + '%';
+                    
+                    // 讀取圖片
+                    const imageData = await readFileAsDataURL(file);
+                    
+                    if (!firstPage) {
+                        pdf.addPage();
+                    }
+                    firstPage = false;
+                    
+                    // 計算圖片大小以適應頁面
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    
+                    // 添加圖片到 PDF
+                    pdf.addImage(imageData, 'JPEG', 10, 10, pageWidth - 20, pageHeight - 20, undefined, 'FAST');
+                }
+                
+                // 產生 PDF Blob
+                const pdfBlob = pdf.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                
+                // 顯示下載連結
+                downloadContainer.innerHTML = `
+                    <a href="${pdfUrl}" download="converted.pdf" class="download-link">
+                        <span>📄</span>
+                        下載 PDF (${formatFileSize(pdfBlob.size)})
+                    </a>
+                `;
+                
+                progressContainer.classList.remove('show');
+                resultContainer.classList.add('show');
+                
+            } catch (error) {
+                console.error('轉換錯誤:', error);
+                alert('轉換失敗: ' + error.message);
+                progressContainer.classList.remove('show');
+            }
+        });
+        
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 清除圖片
+        document.getElementById('clearImages').addEventListener('click', () => {
+            imagesToConvert = [];
+            displayImageFiles();
+            imageToPdfOptions.style.display = 'none';
+            document.getElementById('imageToPdfResult').classList.remove('show');
+        });
+        
+        // PDF 轉圖片功能
+        const pdfToImageUpload = document.getElementById('pdfToImageUpload');
+        const pdfToImageInput = document.getElementById('pdfToImageInput');
+        const pdfToImageList = document.getElementById('pdfToImageList');
+        const pdfToImageOptions = document.getElementById('pdfToImageOptions');
+        let pdfFileToConvert = null;
+        
+        pdfToImageUpload.addEventListener('click', () => pdfToImageInput.click());
+        
+        pdfToImageUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            pdfToImageUpload.classList.add('dragover');
+        });
+        
+        pdfToImageUpload.addEventListener('dragleave', () => {
+            pdfToImageUpload.classList.remove('dragover');
+        });
+        
+        pdfToImageUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            pdfToImageUpload.classList.remove('dragover');
+            handlePdfFile(e.dataTransfer.files[0]);
+        });
+        
+        pdfToImageInput.addEventListener('change', (e) => {
+            handlePdfFile(e.target.files[0]);
+        });
+        
+        async function handlePdfFile(file) {
+            if (file && file.type === 'application/pdf') {
+                pdfFileToConvert = file;
+                displayPdfFile();
+                pdfToImageOptions.style.display = 'block';
+                await previewPdf(file);
+            }
+        }
+        
+        function displayPdfFile() {
+            pdfToImageList.innerHTML = '';
+            if (pdfFileToConvert) {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <div class="file-name">${pdfFileToConvert.name}</div>
+                            <div class="file-size">${formatFileSize(pdfFileToConvert.size)}</div>
+                        </div>
+                    </div>
+                `;
+                pdfToImageList.appendChild(item);
+            }
+        }
+        
+        async function previewPdf(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+            const preview = document.getElementById('pdfPreview');
+            const pagesContainer = document.getElementById('pdfPages');
+            
+            preview.style.display = 'block';
+            pagesContainer.innerHTML = '';
+            
+            // 顯示前幾頁預覽
+            const maxPreview = Math.min(3, pdf.numPages);
+            for (let i = 1; i <= maxPreview; i++) {
+                const page = await pdf.getPage(i);
+                const scale = 0.5;
+                const viewport = page.getViewport({ scale });
+                
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                
+                await page.render(renderContext).promise;
+                
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page-preview';
+                pageDiv.appendChild(canvas);
+                pagesContainer.appendChild(pageDiv);
+            }
+            
+            if (pdf.numPages > 3) {
+                const morePages = document.createElement('p');
+                morePages.textContent = `還有 ${pdf.numPages - 3} 頁...`;
+                morePages.style.textAlign = 'center';
+                morePages.style.color = '#666';
+                pagesContainer.appendChild(morePages);
+            }
+        }
+        
+        // PDF 轉圖片轉換
+        document.getElementById('convertPdfToImage').addEventListener('click', async () => {
+            if (!pdfFileToConvert) {
+                alert('請選擇 PDF 檔案');
+                return;
+            }
+            
+            const format = document.getElementById('outputImageFormat').value;
+            const dpi = parseInt(document.getElementById('outputDpi').value);
+            const scale = dpi / 72; // PDF 預設是 72 DPI
+            
+            const resultContainer = document.getElementById('pdfToImageResult');
+            const downloadContainer = document.getElementById('pdfToImageDownload');
+            
+            try {
+                const arrayBuffer = await pdfFileToConvert.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                
+                downloadContainer.innerHTML = '';
+                const downloadLinks = [];
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale });
+                    
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    
+                    await page.render(renderContext).promise;
+                    
+                    // 轉換為指定格式
+                    const blob = await new Promise(resolve => {
+                        canvas.toBlob(resolve, `image/${format}`, 0.95);
+                    });
+                    
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `page-${i}.${format}`;
+                    link.className = 'download-link';
+                    link.innerHTML = `
+                        <span>🖼️</span>
+                        第 ${i} 頁
+                    `;
+                    downloadContainer.appendChild(link);
+                }
+                
+                resultContainer.classList.add('show');
+                
+            } catch (error) {
+                console.error('轉換錯誤:', error);
+                alert('轉換失敗: ' + error.message);
+            }
+        });
+        
+        // 合併 PDF 功能
+        const mergePdfUpload = document.getElementById('mergePdfUpload');
+        const mergePdfInput = document.getElementById('mergePdfInput');
+        const mergePdfList = document.getElementById('mergePdfList');
+        const mergePdfOptions = document.getElementById('mergePdfOptions');
+        let pdfsToMerge = [];
+        
+        mergePdfUpload.addEventListener('click', () => mergePdfInput.click());
+        
+        mergePdfUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            mergePdfUpload.classList.add('dragover');
+        });
+        
+        mergePdfUpload.addEventListener('dragleave', () => {
+            mergePdfUpload.classList.remove('dragover');
+        });
+        
+        mergePdfUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            mergePdfUpload.classList.remove('dragover');
+            handleMergePdfFiles(e.dataTransfer.files);
+        });
+        
+        mergePdfInput.addEventListener('change', (e) => {
+            handleMergePdfFiles(e.target.files);
+        });
+        
+        function handleMergePdfFiles(files) {
+            const pdfFiles = Array.from(files).filter(file => file.type === 'application/pdf');
+            pdfsToMerge = [...pdfsToMerge, ...pdfFiles];
+            displayMergePdfFiles();
+            mergePdfOptions.style.display = pdfsToMerge.length > 1 ? 'block' : 'none';
+        }
+        
+        function displayMergePdfFiles() {
+            mergePdfList.innerHTML = '';
+            pdfsToMerge.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.draggable = true;
+                item.dataset.index = index;
+                item.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeMergePdfFile(${index})">移除</button>
+                `;
+                
+                // 拖動排序
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/html', item.innerHTML);
+                    draggedIndex = index;
+                });
+                
+                item.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (draggedIndex !== index) {
+                        const draggedFile = pdfsToMerge[draggedIndex];
+                        pdfsToMerge.splice(draggedIndex, 1);
+                        pdfsToMerge.splice(index, 0, draggedFile);
+                        displayMergePdfFiles();
+                    }
+                });
+                
+                mergePdfList.appendChild(item);
+            });
+        }
+        
+        let draggedIndex = null;
+        
+        function removeMergePdfFile(index) {
+            pdfsToMerge.splice(index, 1);
+            displayMergePdfFiles();
+            if (pdfsToMerge.length <= 1) {
+                mergePdfOptions.style.display = 'none';
+            }
+        }
+        
+        // 合併 PDF
+        document.getElementById('mergePdfFiles').addEventListener('click', async () => {
+            if (pdfsToMerge.length < 2) {
+                alert('請選擇至少兩個 PDF 檔案');
+                return;
+            }
+            
+            const progressContainer = document.getElementById('mergePdfProgress');
+            const progressFill = progressContainer.querySelector('.progress-fill');
+            const resultContainer = document.getElementById('mergePdfResult');
+            const downloadContainer = document.getElementById('mergePdfDownload');
+            
+            progressContainer.classList.add('show');
+            resultContainer.classList.remove('show');
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const mergedPdf = new jsPDF();
+                let firstPage = true;
+                
+                for (let i = 0; i < pdfsToMerge.length; i++) {
+                    const file = pdfsToMerge[i];
+                    const progress = Math.round(((i + 1) / pdfsToMerge.length) * 100);
+                    progressFill.style.width = progress + '%';
+                    progressFill.textContent = progress + '%';
+                    
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                    
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        const page = await pdf.getPage(pageNum);
+                        const viewport = page.getViewport({ scale: 2 });
+                        
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        
+                        await page.render({
+                            canvasContext: context,
+                            viewport: viewport
+                        }).promise;
+                        
+                        if (!firstPage) {
+                            mergedPdf.addPage();
+                        }
+                        firstPage = false;
+                        
+                        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                        const pageWidth = mergedPdf.internal.pageSize.getWidth();
+                        const pageHeight = mergedPdf.internal.pageSize.getHeight();
+                        
+                        mergedPdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+                    }
+                }
+                
+                const pdfBlob = mergedPdf.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                
+                downloadContainer.innerHTML = `
+                    <a href="${pdfUrl}" download="merged.pdf" class="download-link">
+                        <span>📄</span>
+                        下載合併的 PDF (${formatFileSize(pdfBlob.size)})
+                    </a>
+                `;
+                
+                progressContainer.classList.remove('show');
+                resultContainer.classList.add('show');
+                
+            } catch (error) {
+                console.error('合併錯誤:', error);
+                alert('合併失敗: ' + error.message);
+                progressContainer.classList.remove('show');
+            }
+        });
+        
+        // 清除合併檔案
+        document.getElementById('clearMergeFiles').addEventListener('click', () => {
+            pdfsToMerge = [];
+            displayMergePdfFiles();
+            mergePdfOptions.style.display = 'none';
+            document.getElementById('mergePdfResult').classList.remove('show');
+        });
+        
+        // 分割方式切換
+        document.getElementById('splitMethod').addEventListener('change', (e) => {
+            const pageRangeGroup = document.getElementById('pageRangeGroup');
+            pageRangeGroup.style.display = e.target.value === 'range' ? 'block' : 'none';
+        });
+        
+        // 文字轉 PDF
+        document.getElementById('convertTextToPdf').addEventListener('click', () => {
+            const text = document.getElementById('textContent').value;
+            if (!text.trim()) {
+                alert('請輸入文字內容');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const fontSize = parseInt(document.getElementById('fontSize').value);
+            const fontFamily = document.getElementById('fontFamily').value;
+            
+            const pdf = new jsPDF();
+            pdf.setFont(fontFamily);
+            pdf.setFontSize(fontSize);
+            
+            const lines = pdf.splitTextToSize(text, 180);
+            let y = 20;
+            
+            lines.forEach(line => {
+                if (y > 270) {
+                    pdf.addPage();
+                    y = 20;
+                }
+                pdf.text(line, 15, y);
+                y += fontSize * 0.4;
+            });
+            
+            const pdfBlob = pdf.output('blob');
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            
+            const resultContainer = document.getElementById('textToPdfResult');
+            const downloadContainer = document.getElementById('textToPdfDownload');
+            
+            downloadContainer.innerHTML = `
+                <a href="${pdfUrl}" download="text-document.pdf" class="download-link">
+                    <span>📄</span>
+                    下載 PDF (${formatFileSize(pdfBlob.size)})
+                </a>
+            `;
+            
+            resultContainer.classList.add('show');
+        });
+    </script>
+</body>
+</html>

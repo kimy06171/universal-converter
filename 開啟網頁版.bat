@@ -9,10 +9,12 @@ echo 請選擇要開啟的版本：
 echo.
 echo [1] 簡單版（基本圖片轉換）
 echo [2] 進階版（更多功能）
+echo [3] PDF 專業版（完整 PDF 處理）
 echo.
 
-choice /C 12 /M "請選擇"
+choice /C 123 /M "請選擇"
 
+if errorlevel 3 goto PDF
 if errorlevel 2 goto ADVANCED
 if errorlevel 1 goto SIMPLE
 
@@ -28,6 +30,12 @@ echo 正在開啟進階版...
 start "" "%cd%\web-converter-advanced.html"
 goto END
 
+:PDF
+echo.
+echo 正在開啟 PDF 專業版...
+start "" "%cd%\web-converter-pdf.html"
+goto END
+
 :END
 echo.
 echo ✅ 網頁版已開啟！
@@ -35,6 +43,7 @@ echo.
 echo 如果瀏覽器沒有自動開啟，請手動開啟：
 echo 簡單版：%cd%\web-converter.html
 echo 進階版：%cd%\web-converter-advanced.html
+echo PDF版：%cd%\web-converter-pdf.html
 echo.
 echo ========================================
 echo   使用說明
