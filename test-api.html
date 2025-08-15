@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>測試 API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-item {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>API 測試工具</h1>
+    
+    <div class="test-item">
+        <h3>測試 /api/health</h3>
+        <button onclick="testHealth()">測試健康狀態</button>
+        <div id="health-result"></div>
+    </div>
+    
+    <div class="test-item">
+        <h3>測試 /api/formats</h3>
+        <button onclick="testFormats()">測試格式 API</button>
+        <div id="formats-result"></div>
+    </div>
+    
+    <div class="test-item">
+        <h3>直接開啟應用程式</h3>
+        <button onclick="window.open('http://localhost:3456')">開啟應用程式</button>
+    </div>
+    
+    <script>
+        async function testHealth() {
+            const resultDiv = document.getElementById('health-result');
+            try {
+                const response = await fetch('http://localhost:3456/api/health');
+                const contentType = response.headers.get('content-type');
+                const data = await response.text();
+                
+                resultDiv.innerHTML = `
+                    <p><strong>狀態碼：</strong> ${response.status}</p>
+                    <p><strong>Content-Type：</strong> ${contentType || '無'}</p>
+                    <p><strong>回應內容：</strong></p>
+                    <pre>${data}</pre>
+                `;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    resultDiv.parentElement.className = 'test-item success';
+                    const jsonData = JSON.parse(data);
+                    resultDiv.innerHTML += '<p>✅ JSON 解析成功！</p>';
+                } else {
+                    resultDiv.parentElement.className = 'test-item error';
+                    resultDiv.innerHTML += '<p>❌ 不是 JSON 格式</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>❌ 錯誤：${error.message}</p>`;
+                resultDiv.parentElement.className = 'test-item error';
+            }
+        }
+        
+        async function testFormats() {
+            const resultDiv = document.getElementById('formats-result');
+            try {
+                const response = await fetch('http://localhost:3456/api/formats');
+                const contentType = response.headers.get('content-type');
+                const data = await response.text();
+                
+                resultDiv.innerHTML = `
+                    <p><strong>狀態碼：</strong> ${response.status}</p>
+                    <p><strong>Content-Type：</strong> ${contentType || '無'}</p>
+                    <p><strong>回應內容：</strong></p>
+                    <pre>${data.substring(0, 500)}${data.length > 500 ? '...' : ''}</pre>
+                `;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    resultDiv.parentElement.className = 'test-item success';
+                    const jsonData = JSON.parse(data);
+                    resultDiv.innerHTML += '<p>✅ JSON 解析成功！</p>';
+                    resultDiv.innerHTML += `<p>支援的格式類型：${Object.keys(jsonData).join(', ')}</p>`;
+                } else {
+                    resultDiv.parentElement.className = 'test-item error';
+                    resultDiv.innerHTML += '<p>❌ 不是 JSON 格式</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>❌ 錯誤：${error.message}</p>`;
+                resultDiv.parentElement.className = 'test-item error';
+            }
+        }
+        
+        // 自動測試
+        window.onload = function() {
+            setTimeout(() => {
+                testHealth();
+                testFormats();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

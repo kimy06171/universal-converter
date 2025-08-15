@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-packager/
+dist-packager-new/
+uploads/
+output/
+*.log
+.env
+.DS_Store
+Thumbs.db
+*.exe
+*.dll
+*.zip
+*.7z
+*.rar
