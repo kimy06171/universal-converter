@@ -1,0 +1,57 @@
+========================================
+萬用轉檔工具 - 使用說明
+========================================
+
+【程式說明】
+這是一個功能強大的本地檔案轉換工具，支援多種格式的檔案轉換：
+• 圖片：JPG, PNG, GIF, WebP, BMP
+• 影片：MP4, AVI, MOV, MKV, WebM
+• 音訊：MP3, WAV, FLAC, AAC, OGG
+• 文檔：PDF, DOCX, TXT, XLSX, CSV
+
+【啟動方式】
+
+方法 1：快速啟動
+- 雙擊 START-CONVERTER.bat
+
+方法 2：直接執行
+- 前往 dist-packager-new\Universal-Converter-win32-x64\
+- 執行 Universal-Converter.exe
+
+【使用方法】
+1. 程式啟動後會自動開啟視窗
+2. 可以拖放檔案或點擊選擇檔案
+3. 選擇輸出格式
+4. 點擊轉換按鈕
+5. 下載轉換後的檔案
+
+【攜帶到其他電腦】
+1. 將整個 dist-packager-new\Universal-Converter-win32-x64\ 資料夾複製
+2. 可以壓縮成 ZIP 檔案方便傳輸
+3. 在其他電腦解壓縮後直接執行 Universal-Converter.exe
+4. 無需安裝任何其他軟體
+
+【系統需求】
+- Windows 10 或更新版本（64 位元）
+- 約 200 MB 硬碟空間
+- 無需安裝 Node.js 或其他軟體
+
+【疑難排解】
+
+問題：程式無法啟動
+解決：
+1. 確認 Windows 版本為 64 位元
+2. 嘗試以系統管理員身份執行
+3. 檢查防毒軟體是否封鎖
+
+問題：無法轉換某些檔案
+解決：
+1. 確認檔案格式是否支援
+2. 檢查檔案是否損壞
+3. 嘗試其他輸出格式
+
+【檔案位置】
+主程式：dist-packager-new\Universal-Converter-win32-x64\Universal-Converter.exe
+快速啟動：START-CONVERTER.bat
+
+========================================

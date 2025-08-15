@@ -8,19 +8,23 @@
     "dev": "nodemon server.js",
     "electron": "electron .",
     "electron-dev": "electron . --dev",
-    "build-win": "electron-builder --win",
-    "build-portable": "electron-builder --win portable",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "build-win": "node build-with-packager.js win32",
+    "build-mac": "node build-with-packager.js darwin",
+    "build-linux": "node build-with-packager.js linux",
+    "build-all": "node build-all-platforms.js",
+    "pack-win": "npm run build-win && npm run zip-win",
+    "pack-mac": "npm run build-mac && npm run zip-mac",
+    "zip-win": "powershell Compress-Archive -Path 'dist-packager-new/Universal-Converter-win32-x64' -DestinationPath 'releases/Universal-Converter-Windows.zip' -Force",
+    "zip-mac": "cd dist-packager-new && zip -r ../releases/Universal-Converter-Mac.zip Universal-Converter-darwin-x64"
   },
   "keywords": [
     "converter",
     "file-conversion",
     "ffmpeg",
     "sharp",
-    "pandoc"
+    "cross-platform"
   ],
-  "author": "",
+  "author": "kimy06171",
   "license": "MIT",
   "dependencies": {
     "archiver": "^6.0.1",
@@ -48,7 +52,7 @@
       "output": "dist"
     },
     "files": [
-      "electron-main.js",
+      "electron-standalone.js",
       "electron-preload.js",
       "server.js",
       "src/**/*",
@@ -56,44 +60,46 @@
       "node_modules/**/*",
       ".env"
     ],
-    "extraResources": [
-      {
-        "from": "C:/ffmpeg/bin",
-        "to": "ffmpeg/bin",
-        "filter": [
-          "*.exe",
-          "*.dll"
-        ]
-      }
-    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "public/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
+      ]
+    },
     "win": {
       "target": [
         {
           "target": "nsis",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         },
         {
           "target": "portable",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         }
       ],
-      "icon": "public/icon.ico",
-      "forceCodeSigning": false,
-      "verifyUpdateCodeSignature": false
+      "icon": "public/icon.ico"
     },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "萬用轉檔工具"
-    },
-    "portable": {
-      "artifactName": "萬用轉檔工具-portable.exe"
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/icon.png",
+      "category": "Utility"
     }
   }
 }

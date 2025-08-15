@@ -1,0 +1,28 @@
+{
+  "appId": "com.universal.converter",
+  "productName": "Universal-Converter",
+  "directories": {
+    "output": "dist"
+  },
+  "files": [
+    "electron-main.js",
+    "electron-preload.js",
+    "server.js",
+    "src/**/*",
+    "public/**/*",
+    "node_modules/**/*",
+    ".env",
+    "!node_modules/electron/**/*",
+    "!node_modules/electron-builder/**/*",
+    "!dist/**/*"
+  ],
+  "win": {
+    "target": "portable",
+    "icon": "public/icon.ico"
+  },
+  "portable": {
+    "artifactName": "Universal-Converter-Portable.exe",
+    "requestExecutionLevel": "user"
+  },
+  "compression": "maximum"
+}

@@ -1,0 +1,113 @@
+name: Build Electron App
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            platform: win32
+            arch: x64
+            ext: .exe
+          - os: macos-latest
+            platform: darwin
+            arch: x64
+            ext: .app
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+            ext: ''
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build Electron app
+      run: |
+        npm run build-${{ matrix.platform }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Package app
+      run: |
+        node build-with-packager.js ${{ matrix.platform }}
+
+    - name: Create ZIP archive (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        Compress-Archive -Path "dist-packager-new\Universal-Converter-win32-x64" -DestinationPath "Universal-Converter-Windows.zip"
+      shell: pwsh
+
+    - name: Create ZIP archive (Mac)
+      if: matrix.os == 'macos-latest'
+      run: |
+        cd dist-packager-new
+        zip -r ../Universal-Converter-Mac.zip Universal-Converter-darwin-x64
+
+    - name: Create TAR archive (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        cd dist-packager-new
+        tar -czf ../Universal-Converter-Linux.tar.gz Universal-Converter-linux-x64
+
+    - name: Upload Windows artifact
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: Universal-Converter-Windows
+        path: Universal-Converter-Windows.zip
+
+    - name: Upload Mac artifact
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: Universal-Converter-Mac
+        path: Universal-Converter-Mac.zip
+
+    - name: Upload Linux artifact
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: Universal-Converter-Linux
+        path: Universal-Converter-Linux.tar.gz
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          Universal-Converter-Windows/Universal-Converter-Windows.zip
+          Universal-Converter-Mac/Universal-Converter-Mac.zip
+          Universal-Converter-Linux/Universal-Converter-Linux.tar.gz
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

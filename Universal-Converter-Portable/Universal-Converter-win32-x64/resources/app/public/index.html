@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萬用轉檔工具 - Universal Converter</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔄 萬用轉檔工具</h1>
+            <p>支援圖片、影音、文檔等多種格式互轉</p>
+        </header>
+
+        <main>
+            <!-- 檔案類型選擇 -->
+            <div class="file-type-selector">
+                <button class="type-btn active" data-type="all">全部</button>
+                <button class="type-btn" data-type="image">🖼️ 圖片</button>
+                <button class="type-btn" data-type="video">🎬 影片</button>
+                <button class="type-btn" data-type="audio">🎵 音訊</button>
+                <button class="type-btn" data-type="document">📄 文檔</button>
+            </div>
+
+            <!-- 上傳區域 -->
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <h3>拖放檔案到這裡</h3>
+                <p>或</p>
+                <button class="select-btn" id="selectBtn">選擇檔案</button>
+                <input type="file" id="fileInput" multiple hidden>
+                <p class="upload-hint">支援批次處理，最多10個檔案，每個最大100MB</p>
+            </div>
+
+            <!-- 檔案列表 -->
+            <div class="file-list" id="fileList" style="display: none;">
+                <h3>待轉換檔案</h3>
+                <div class="files-container" id="filesContainer"></div>
+            </div>
+
+            <!-- 轉換選項 -->
+            <div class="conversion-options" id="conversionOptions" style="display: none;">
+                <h3>轉換設定</h3>
+                
+                <div class="option-group">
+                    <label for="outputFormat">輸出格式：</label>
+                    <select id="outputFormat">
+                        <option value="">請選擇輸出格式</option>
+                    </select>
+                </div>
+
+                <!-- 進階選項 (根據檔案類型動態顯示) -->
+                <div class="advanced-options" id="advancedOptions" style="display: none;">
+                    <h4>進階設定</h4>
+                    
+                    <!-- 圖片選項 -->
+                    <div class="image-options options-panel" style="display: none;">
+                        <div class="option-row">
+                            <label>品質 (1-100)：</label>
+                            <input type="number" id="imageQuality" min="1" max="100" value="85">
+                        </div>
+                        <div class="option-row">
+                            <label>寬度：</label>
+                            <input type="number" id="imageWidth" placeholder="自動">
+                        </div>
+                        <div class="option-row">
+                            <label>高度：</label>
+                            <input type="number" id="imageHeight" placeholder="自動">
+                        </div>
+                        <div class="option-row">
+                            <label>
+                                <input type="checkbox" id="imageGrayscale">
+                                轉為灰階
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 影片選項 -->
+                    <div class="video-options options-panel" style="display: none;">
+                        <div class="option-row">
+                            <label>視訊位元率：</label>
+                            <input type="text" id="videoBitrate" placeholder="例如: 1000k">
+                        </div>
+                        <div class="option-row">
+                            <label>音訊位元率：</label>
+                            <input type="text" id="audioBitrate" placeholder="例如: 128k">
+                        </div>
+                        <div class="option-row">
+                            <label>FPS：</label>
+                            <input type="number" id="videoFps" placeholder="30">
+                        </div>
+                        <div class="option-row">
+                            <label>解析度：</label>
+                            <select id="videoSize">
+                                <option value="">原始</option>
+                                <option value="1920x1080">1080p</option>
+                                <option value="1280x720">720p</option>
+                                <option value="854x480">480p</option>
+                                <option value="640x360">360p</option>
+                            </select>
+                        </div>
+                        <div class="option-row">
+                            <label>
+                                <input type="checkbox" id="noAudio">
+                                移除音訊
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 音訊選項 -->
+                    <div class="audio-options options-panel" style="display: none;">
+                        <div class="option-row">
+                            <label>位元率：</label>
+                            <select id="audioBitrateSelect">
+                                <option value="">預設</option>
+                                <option value="96k">96 kbps</option>
+                                <option value="128k">128 kbps</option>
+                                <option value="192k">192 kbps</option>
+                                <option value="256k">256 kbps</option>
+                                <option value="320k">320 kbps</option>
+                            </select>
+                        </div>
+                        <div class="option-row">
+                            <label>取樣率：</label>
+                            <select id="audioSampleRate">
+                                <option value="">預設</option>
+                                <option value="22050">22.05 kHz</option>
+                                <option value="44100">44.1 kHz</option>
+                                <option value="48000">48 kHz</option>
+                            </select>
+                        </div>
+                        <div class="option-row">
+                            <label>聲道：</label>
+                            <select id="audioChannels">
+                                <option value="">預設</option>
+                                <option value="1">單聲道</option>
+                                <option value="2">立體聲</option>
+                            </select>
+                        </div>
+                        <div class="option-row">
+                            <label>音量調整：</label>
+                            <input type="range" id="audioVolume" min="0.5" max="2" step="0.1" value="1">
+                            <span id="volumeValue">1.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="convert-btn" id="convertBtn">開始轉換</button>
+            </div>
+
+            <!-- 進度顯示 -->
+            <div class="progress-area" id="progressArea" style="display: none;">
+                <h3>轉換進度</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text" id="progressText">準備中...</p>
+            </div>
+
+            <!-- 結果顯示 -->
+            <div class="results-area" id="resultsArea" style="display: none;">
+                <h3>轉換完成</h3>
+                <div class="results-container" id="resultsContainer"></div>
+                <button class="reset-btn" id="resetBtn">新的轉換</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2024 萬用轉檔工具 - 支援多種格式快速轉換</p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

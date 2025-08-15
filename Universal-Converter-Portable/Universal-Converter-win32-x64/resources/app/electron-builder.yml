@@ -1,0 +1,73 @@
+appId: com.universal.converter
+productName: 萬用轉檔工具
+copyright: Copyright © 2024
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - electron-main.js
+  - electron-preload.js
+  - server.js
+  - src/**/*
+  - public/**/*
+  - node_modules/**/*
+  - .env
+  - "!**/*.map"
+  - "!**/*.md"
+  - "!**/test/**"
+  - "!**/tests/**"
+  - "!**/.git/**"
+
+# 額外資源（FFmpeg）
+extraResources:
+  - from: C:/ffmpeg/bin
+    to: ffmpeg/bin
+    filter:
+      - "*.exe"
+      - "*.dll"
+
+# Windows 配置
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: public/icon.ico
+  requestedExecutionLevel: asInvoker
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+# NSIS 安裝程式配置
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 萬用轉檔工具
+  uninstallDisplayName: 萬用轉檔工具
+  license: LICENSE.txt
+  installerIcon: public/icon.ico
+  uninstallerIcon: public/icon.ico
+  installerHeader: public/installer-header.bmp
+  installerSidebar: public/installer-sidebar.bmp
+
+# 可攜帶版配置
+portable:
+  artifactName: ${productName}-portable-${version}.exe
+  requestExecutionLevel: user
+
+# 壓縮設定
+compression: normal
+npmRebuild: true
+nodeGypRebuild: false
+
+# 發布配置（可選）
+publish:
+  - provider: generic
+    url: https://example.com/releases/
